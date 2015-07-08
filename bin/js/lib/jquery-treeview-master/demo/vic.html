@@ -1,0 +1,220 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+	<meta http-equiv="content-type" content="text/html;" charset="utf8" />
+	<title>jQuery treeview</title>
+
+	<link rel="stylesheet" href="../jquery.treeview.css" />
+	
+	<script src="jQuery-contextMenu-master/jQuery-contextMenu-master/jquery-1.8.2.min.js" type="text/javascript"></script>
+	<script src="jQuery-contextMenu-master/jQuery-contextMenu-master/src/jquery.contextMenu.js" type="text/javascript"></script>
+	
+	<script src="../jquery.treeview.js" type="text/javascript"></script>
+	<script src="../jquery.treeview.edit.js" type="text/javascript"></script>
+	<link href="jQuery-contextMenu-master/jQuery-contextMenu-master/src/jquery.contextMenu.css" rel="stylesheet" type="text/css" />
+	
+
+	</head>
+	<style>
+	li{
+		cursor:pointer;
+	}
+	</style>
+	<body>
+	
+	<div id="main">
+
+	<h4>對著粒子按右鍵開啟選單，copy和paste有bug，所以先關掉了</h4>
+	<ul id="vicb" class="filetree">
+		<!--
+		<li><span class="folder">AAA</span>
+			<ul>
+				<li><span class="file">aa</span></li>
+				<li><span class="folder">BB</span></li>
+			</ul>
+		</li>
+		<li><span class="file">aaa</span></li>
+		<li><span class="file">aaa</span></li>
+		<li><span class="file">aaa</span></li>
+		-->
+	</ul>
+	<script type="text/javascript">
+	
+		var tempCloneObj;
+		var vicb = $('#vicb');
+		vicb.treeview({
+			animated: "fast"
+		});
+		
+		addEmitter( vicb, true );
+		
+		function addEmitter( container, root ){
+			var en = Math.floor( Math.random() * 10000 );
+			var dom = $( getOneEmitter( en, root ) );
+			addToTree( container, dom );
+			/*
+			container.prepend( dom );
+			addTreeView( dom );
+			initContextMenu();
+			*/
+		}
+		
+		function addParticle( container ){
+			var en = Math.floor( Math.random() * 10000 );
+			var dom = $( getOneParticle( en ) );
+			addToTree( container, dom );
+			/*
+			container.prepend( dom );
+			addTreeView( dom );
+			initContextMenu();
+			*/
+		}
+		
+		function addToTree( container, dom ){
+			container.prepend( dom );
+			addTreeView( dom );
+			initContextMenu();
+		}
+		
+		function addTreeView( jdom ){
+			vicb.treeview( {
+				add:jdom
+			});
+		}
+		
+		function getOneEmitter( name, root ){
+			//return '<li id="e_' + name + '" class="emitter ' + ( root == true ? 'systemRoot' : '' ) + '"><span class="folder">e_' + name + ' emitter</span><ul id="u_' + name + '">' + getOneParticle( name ) + '</ul></li>';
+			return '<li id="e_' + name + '" class="emitter ' + ( root == true ? 'systemRoot' : '' ) + '"><img class="folderImage" src="../images/folder.gif" />e_' + name + ' emitter<ul id="u_' + name + '">' + getOneParticle( name ) + '</ul></li>';
+		}
+		
+		function getOneParticle( name ){
+			//return '<li id="p_' + name + '" class="particle"><span class="file">p_' + name + ' particle</span> </li>'
+			return '<li id="p_' + name + '" class="particle"><img src="../images/file.gif" />p_' + name + ' particle </li>'
+		}
+		
+		function collectEmitter( items ){
+			$( '.folderImage' ).each( function( id, dom ){
+				var p = $( dom ).parent();
+				items[ 'moveTo_' + p.attr( 'id' ) ] = { name:'moveTo: ' + p.attr( 'id' ) }
+			});
+		}
+		
+		function getUlContainerByLi( lidom ){
+			var id = lidom.attr( 'id' );
+			var ulid = '#u_' + id.substr( 'e_'.length, id.length );
+			return lidom.find( ulid );
+		}
+		
+		function getParticleContainerByLi( lidom ){
+			var id = lidom.attr( 'id' );
+			var ulid = '#u_' + id.substr( 'e_'.length, id.length );
+			return lidom.find( ulid );
+		}
+		
+		function getNewName(){
+			return Math.floor( Math.random() * 10000 );
+		}
+		
+		function initContextMenu(){
+			var items = {};
+			//items['copy'] = {name: "Copy", icon: "copy"};
+			//items['paste'] = {name: "Paste", icon: "paste"};
+			items['addParticle'] = {name: "Add Particle", icon: "add"};
+			items['addEmitter'] = {name: "Add Emitter", icon: "add"};
+			items['delete'] = {name: "Delete", icon: "delete"};
+			items['sep1'] = "---------";
+			collectEmitter( items );
+			
+			$.contextMenu( 'destroy', 'li' );
+			$.contextMenu({
+				selector: 'li', 
+				callback: function(key, options) {
+					console.log( options.$trigger.attr( 'id' ) );
+					var target = options.$trigger;
+					var id = target.attr( 'id' );
+					var isEmitter = target.hasClass( 'emitter' );
+					switch( key ){
+						case 'copy':
+							tempCloneObj = {
+								dom:target.clone(),
+								isEmitter:isEmitter
+							}
+							
+							var newName = Math.floor( Math.random() * 10000 );
+							getUlContainerByLi( tempCloneObj.dom ).attr( 'id', 'u_' + newName );
+							if( isEmitter ){
+								tempCloneObj.dom.attr( 'id', 'e_' + newName );
+								tempCloneObj.dom.find( '.particle' ).each( function( id, dom ){
+									dom.id = 'p_' + getNewName();
+								});
+								tempCloneObj.dom.find( '.emitter' ).each( function( id, dom ){
+									dom.id = 'e_' + getNewName();
+								});
+							}else{
+								tempCloneObj.dom.attr( 'id', 'p_' + newName );
+							}
+							
+							console.log( tempCloneObj );
+							break;
+						case 'paste':
+							if( !isEmitter ) alert( 'can not add particle to particle!' );
+							if( tempCloneObj == undefined ) {
+								alert( 'you should copy first!' );
+								return;
+							}
+							/*
+							if( tempCloneObj.isEmitter ){
+								addEmitter( getUlContainerByLi( target ) );
+							}else{
+								addParticle( getUlContainerByLi( target ) );
+							}
+							*/
+							addToTree( getUlContainerByLi( target ), tempCloneObj.dom );
+							tempCloneObj = undefined;
+							break;
+						case 'delete':
+							if( target.hasClass( 'systemRoot' )){
+								alert( 'root can not delete!' );
+							}else{
+								target.remove();
+							}
+							break;
+						case 'addParticle':
+							if( !isEmitter ) alert( 'can not add particle to particle!' );
+							var ulid = '#u_' + id.substr( 'e_'.length, id.length );
+							//addParticle( target.find( ulid ) );
+							addParticle( getUlContainerByLi( target ) );
+							break;
+						case 'addEmitter':
+							if( !isEmitter ) alert( 'can not add emitter to particle!' );
+							var ulid = '#u_' + id.substr( 'e_'.length, id.length );
+							//addEmitter( target.find( ulid ) );
+							addEmitter( getUlContainerByLi( target ) );
+							break;
+						default:
+							
+							if( key.search( 'moveTo_' ) != -1 ){
+								if( target.hasClass( 'systemRoot' )){
+									alert( 'root can not move!' );
+								}else{
+									var toId = key.substr( 'moveTo_'.length, key.length );
+									var toDom = getUlContainerByLi( $( '#' + toId ) );
+									console.log( toDom );
+									toDom.prepend( target );
+								}
+							}
+					}
+				},
+				items: items
+			});
+			
+			$('.context-menu-one').on('click', function(e){
+				console.log('clicked', this);
+			})
+		}
+		
+	</script>
+	</div>
+
+</body></html>
