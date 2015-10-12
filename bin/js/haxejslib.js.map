@@ -1,0 +1,8 @@
+{
+"version":3,
+"file":"haxejslib.js",
+"sourceRoot":"file:///",
+"sources":["C:/HaxeToolkit/haxe/std/js/_std/HxOverrides.hx","C:/Users/Vic/Documents/Custom/Server/git/haxe_js_lib/src/Main.hx"],
+"names":[],
+"mappings":";;qBAoEO,DAA8D;CACpE,CAAI,EAAO,AAAQ,AAAO,AAAK,AAAO,AAAQ,DAAM,FAAI,MAAO;CAC/D,CAAI,EAAO,HAAO,EAAM;CACxB,CAAI,CAAM,FAAG;EACZ,CAAM,AAAW;EACjB,AAAI,CAAM,FAAI,EAAM;MACf,JAAI,CAAM,FACf,EAAM,AAAW,AAAM;CAGxB,MAAO,NAAmB,AAAK;;;YCnEzB,DACP;CAEY;CAEH;CACP,CAAa,DAAW,AAAG,GAAQ,HAClC;EAAQ;EACP,AAAc,DAAY,AAAG,GAAQ,HACpC,WAAO;;;;;;"
+}
